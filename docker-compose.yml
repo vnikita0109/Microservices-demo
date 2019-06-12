@@ -1,0 +1,70 @@
+version: "2"
+services:
+
+  springeurekaserver:
+    build: spring-eureka-server/
+    restart: always
+    network_mode: host
+    ports:
+      - 8761:8761
+    expose:
+      - 8761
+
+  springconfigserver:
+    build: spring-config-server/
+    restart: always
+    network_mode: host
+    ports:
+      - 8889:8889
+    expose:
+      - 8889
+
+  springgateway:
+    build: springgatewayapi/
+    restart: always
+    network_mode: host
+    depends_on:
+      - springeurekaserver
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+
+  muzixservice:
+      build: muzix-service/
+      restart: always
+      network_mode: host
+      depends_on:
+        - springeurekaserver
+        - springconfigserver
+        - springgateway
+        - mongo
+      ports:
+        - 8070:8070
+      expose:
+        - 8070
+
+  userservice:
+      build: user-service/
+      restart: always
+      network_mode: host
+      depends_on:
+            - springeurekaserver
+            - springconfigserver
+            - springgateway
+      ports:
+            - 8090:8090
+      expose:
+            - 8090
+
+  mongo:
+      image: mongo:3.4-xenial
+      restart: always
+      network_mode: host
+      ports:
+            - 27017:27017
+      expose:
+            - 27017
+
+
+
